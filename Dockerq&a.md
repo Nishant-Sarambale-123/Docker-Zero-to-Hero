@@ -129,6 +129,52 @@ CMD ["./app"]
 * Use tools like HashiCorp Vault or AWS Secrets Manager.
 
 ---
+In our organization, we use AWS Secrets Manager and AWS Systems Manager Parameter Store to securely manage and access secrets.
+
+🔐 AWS Secrets Manager:
+We use it to store sensitive information like database credentials, API keys, and third-party service tokens. Here's the typical workflow:
+
+Store the Secret:
+
+We create secrets using the AWS Console, CLI, or IaC (e.g., Terraform).
+
+Secrets are stored with automatic versioning and optional rotation.
+
+Access from Application (inside container):
+
+The application container is deployed on EKS or ECS.
+
+It assumes an IAM role (via IRSA or task role) that has permission to access the secret.
+
+At runtime, the app fetches the secret using AWS SDK (e.g., Boto3 for Python, AWS SDK for Go/Java).
+
+Optionally, secrets can be mounted as environment variables or injected at startup via an init container or sidecar pattern.
+
+🧩 AWS Parameter Store (SSM):
+We use Parameter Store for less sensitive configuration values like feature flags, environment settings, and region values.
+
+Parameter Types:
+
+Standard parameters: Non-sensitive config (e.g., /app/env/region)
+
+SecureString parameters: Encrypted values (e.g., /app/db/password)
+
+Access in Containers:
+
+The container uses the AWS SDK or AWS CLI to fetch parameters.
+
+IAM roles are tightly scoped to allow access only to specific parameter paths.
+
+✅ Best Practices We Follow:
+Secrets and parameters are never hardcoded or baked into images.
+
+IAM roles follow principle of least privilege.
+
+Secrets rotation is enabled for RDS and other services.
+
+Caching layer (e.g., sidecar or in-memory) is sometimes used to reduce API calls.
+
+Let me know if you'd like a sample code or IAM policy snippet for accessing secrets.
 
 #### 14. **What is the difference between `docker stop` and `docker kill`?**
 
