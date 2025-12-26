@@ -264,4 +264,269 @@ If you want, I can also give:
 * 📌 **Docker + Kubernetes scenario questions**
 * 🎯 **One-line interview answers**
 
+Below are **ADVANCED Docker interview questions** that are asked for **mid–senior DevOps (3–6 yrs)** roles.
+These are **real-world, production-level scenarios** — exactly what interviewers expect.
+
+---
+
+## 1️⃣ Docker daemon is down in production. How do you troubleshoot?
+
+**Answer:**
+
+* Check daemon status:
+
+```bash
+systemctl status docker
+journalctl -u docker
+```
+
+* Verify disk space (`/var/lib/docker`)
+* Check corrupted images/containers
+* Restart safely:
+
+```bash
+systemctl restart docker
+```
+
+* If issue persists → move containers to another node (HA setup)
+
+**Key Insight:**
+Docker depends on disk, kernel, cgroups, overlayfs.
+
+---
+
+## 2️⃣ Container is running but consuming very high CPU & memory
+
+**Answer:**
+
+* Identify container:
+
+```bash
+docker stats
+```
+
+* Inspect limits:
+
+```bash
+docker inspect <container>
+```
+
+* Check application-level memory leak
+* Set limits:
+
+```bash
+docker run --memory=512m --cpus=1
+```
+
+* In production → enforce limits via Kubernetes
+
+---
+
+## 3️⃣ Difference between CMD and ENTRYPOINT (Advanced scenario)
+
+**Scenario:**
+You pass a command during `docker run` but container ignores it.
+
+**Answer:**
+
+* `ENTRYPOINT` → always executed
+* `CMD` → default args, overridable
+
+**Best Practice:**
+
+```dockerfile
+ENTRYPOINT ["python", "app.py"]
+CMD ["--port", "8080"]
+```
+
+---
+
+## 4️⃣ Multi-stage build: Why and when?
+
+**Answer:**
+
+* Separate build and runtime layers
+* Smaller image
+* Improved security
+
+```dockerfile
+FROM maven AS build
+RUN mvn package
+
+FROM openjdk:17
+COPY --from=build target/app.jar .
+```
+
+---
+
+## 5️⃣ How Docker networking works internally?
+
+**Answer:**
+
+* Uses Linux namespaces + iptables
+* Default bridge → `docker0`
+* User-defined bridge → DNS support
+* Overlay network → multi-host communication (Swarm/K8s)
+
+**Advanced Note:**
+Container IPs are ephemeral — service discovery is mandatory.
+
+---
+
+## 6️⃣ Docker image layer caching — how does it work?
+
+**Answer:**
+
+* Each instruction = layer
+* Cache reused if instruction unchanged
+* Order matters
+
+**Optimization Tip:**
+
+```dockerfile
+COPY package.json .
+RUN npm install
+COPY . .
+```
+
+---
+
+## 7️⃣ Docker volume vs bind mount (Production view)
+
+| Feature           | Volume | Bind Mount |
+| ----------------- | ------ | ---------- |
+| Managed by Docker | ✅      | ❌          |
+| Portable          | ✅      | ❌          |
+| Prod ready        | ✅      | ❌          |
+
+**Use Case:**
+
+* Volumes → production
+* Bind mounts → development
+
+---
+
+## 8️⃣ How do you handle secrets securely in Docker?
+
+**Answer:**
+
+* Never bake secrets into image
+* Use:
+
+  * Docker secrets (Swarm)
+  * Kubernetes secrets
+  * AWS Secrets Manager
+* Inject at runtime
+
+---
+
+## 9️⃣ Docker build is slow in CI/CD — how to optimize?
+
+**Answer:**
+
+* Use build cache
+* Use `.dockerignore`
+* Reduce context size
+* Use multi-stage builds
+* Enable BuildKit
+
+```bash
+DOCKER_BUILDKIT=1 docker build .
+```
+
+---
+
+## 🔟 How do you scan Docker images for vulnerabilities?
+
+**Answer:**
+
+* Use Trivy / Grype
+
+```bash
+trivy image myapp:latest
+```
+
+* Integrate in CI pipeline
+* Fail build on HIGH/CRITICAL
+
+---
+
+## 1️⃣1️⃣ Difference between Docker Swarm and Kubernetes (Interview angle)
+
+| Aspect     | Docker Swarm | Kubernetes |
+| ---------- | ------------ | ---------- |
+| Setup      | Easy         | Complex    |
+| Scaling    | Limited      | Advanced   |
+| Production | ❌            | ✅          |
+
+---
+
+## 1️⃣2️⃣ Why Kubernetes over Docker in production?
+
+**Answer:**
+
+* Auto-healing
+* Auto-scaling
+* Rolling updates
+* Self-healing
+* Better networking & security
+
+---
+
+## 1️⃣3️⃣ Container runs as root — why is it dangerous?
+
+**Answer:**
+
+* Privilege escalation risk
+* Host compromise possible
+
+**Fix:**
+
+```dockerfile
+USER appuser
+```
+
+---
+
+## 1️⃣4️⃣ Docker logging drivers — when to use which?
+
+| Driver    | Use Case        |
+| --------- | --------------- |
+| json-file | Default         |
+| awslogs   | AWS ECS         |
+| fluentd   | Central logging |
+| syslog    | Legacy systems  |
+
+---
+
+## 1️⃣5️⃣ Production incident: image updated but pods still run old image
+
+**Answer:**
+
+* Image tag reused (`latest`)
+* ImagePullPolicy not set to `Always`
+* Fix: use versioned tags
+
+---
+
+## ⭐ Final Interview Pro Tip
+
+Always answer **advanced Docker questions** like this:
+
+1. Root cause
+2. Linux concept involved
+3. Docker feature
+4. Production best practice
+
+---
+
+If you want next:
+
+* 🔥 **Docker + Kubernetes combined advanced scenarios**
+* 🚀 **CI/CD Docker interview questions**
+* 🧠 **Linux internals behind Docker**
+
+Just say **which one** 👌
+
+
 Just tell me 👍
